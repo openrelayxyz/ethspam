@@ -9,7 +9,7 @@ import (
 
 // TODO: Replace with proper JSON serialization? Originally was written to be quick&dirty for maximum perf.
 
-func genEthCall(w io.Writer, s State) error {
+func genEthCall(w io.Writer, s State) error {  
 	// We eth_call the block before the call actually happened to avoid collision reverts
 	to, from, input, block := s.RandomCall()
 	var err error
@@ -46,9 +46,55 @@ func genEthGetBlockByNumber(w io.Writer, s State) error {
 	return err
 }
 
+func genEthEstimateGas(w io.Writer, s State) error {  
+	// We eth_call the block before the call actually happened to avoid collision reverts
+	to, from, input, block := s.RandomCall()
+	var err error
+	if to != "" {
+		_, err = fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_estimateGas","params":[{"to":%q,"from":%q,"data":%q},"0x%x"]}`+"\n", s.ID(), to, from, input, block-1)
+	} else {
+		_, err = fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_estimateGas","params":[{"from":%q,"data":%q},"0x%x"]}`+"\n", s.ID(), from, input, block-1)
+	}
+	return err
+}
+
+func genEthGetBlockByHash(w io.Writer, s State) error {
+	blockHash := s.BlockHash()
+	full := "true"
+
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getBlockByHash","params":["%v",%s]}`+"\n", s.ID(), blockHash, full)
+	return err
+}
+
+
 func genEthGetTransactionCount(w io.Writer, s State) error {
 	addr := s.RandomAddress()
 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getTransactionCount","params":["%s","pending"]}`+"\n", s.ID(), addr)
+	return err
+}
+
+func genEthChainId(w io.Writer, s State) error {
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_chainId"}`+"\n", s.ID())
+	return err
+}
+
+func genEthSyncing(w io.Writer, s State) error {
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_syncing"}`+"\n", s.ID())
+	return err
+}
+
+func genNetVersion(w io.Writer, s State) error {
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"net_version"}`+"\n", s.ID())
+	return err
+}
+
+func genWeb3ClientVersion(w io.Writer, s State) error {
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"web3_clientVersion"}`+"\n", s.ID())
+	return err
+}
+
+func genEthGasPrice(w io.Writer, s State) error {
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_GasPrice"}`+"\n", s.ID())
 	return err
 }
 
@@ -111,8 +157,15 @@ func installDefaults(gen *generator, methods map[string]int64) error {
 		"eth_getTransactionCount":   genEthGetTransactionCount,
 		"eth_blockNumber":           genEthBlockNumber,
 		"eth_getTransactionByHash":  genEthGetTransactionByHash,
+		"eth_estimateGas":           genEthEstimateGas,
 		"eth_getLogs":               genEthGetLogs,
 		"eth_getCode":               genEthGetCode,
+		"eth_chainId":               genEthChainId,
+		"eth_getBlockByHash":        genEthGetBlockByHash,
+		"eth_gasPrice":              genEthGasPrice,
+		"eth_syncing":               genEthSyncing,
+		"net_version":               genNetVersion,
+		"web3_clientVersion":        genWeb3ClientVersion,
 	}
 
 	for method, weight := range methods {

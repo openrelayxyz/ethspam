@@ -20,6 +20,7 @@ type State interface {
 	RandomAddress() string
 	RandomTransaction() string
 	RandomCall() (to, from, input string, block uint64)
+	BlockHash() string
 }
 
 type idGenerator struct {
@@ -38,6 +39,7 @@ type liveState struct {
 
 	currentBlock uint64
 	transactions []eth.Transaction
+	blockHash *eth.Hash
 }
 
 func (s *liveState) ID() int64 {
@@ -50,6 +52,10 @@ func (s *liveState) CurrentBlock() uint64 {
 
 func (s *liveState) RandInt64() int64 {
 	return s.randSrc.Int63()
+}
+
+func (s *liveState) BlockHash() string {
+	return string(*s.blockHash)
 }
 
 func (s *liveState) RandomTransaction() string {
@@ -153,12 +159,17 @@ func (p *stateProducer) Refresh(oldState *liveState) (*liveState, error) {
 		}
 	}
 
+	// var block eth.Block
+	// *block = b
+
 	state := liveState{
 		idGen:   oldState.idGen,
 		randSrc: oldState.randSrc,
 
 		currentBlock: b.Number.UInt64(),
 		transactions: txs,
+		blockHash:  b.Hash,
 	}
+
 	return &state, nil
 }
