@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"strings"
+	// "strings"
 )
 
 // TODO: Replace with proper JSON serialization? Originally was written to be quick&dirty for maximum perf.
@@ -114,9 +114,15 @@ func genEthGetLogs(w io.Writer, s State) error {
 	// TODO: Favour latest/recent block on a curve
 	fromBlock := s.CurrentBlock() - uint64(r%5000) // Pick a block within the last ~day
 	toBlock := s.CurrentBlock() - uint64(r%5)      // Within the last ~minute
-	address, topics := s.RandomContract()
-	topicsJoined := strings.Join(topics, `","`)
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getLogs","params":[{"fromBlock":"0x%x","toBlock":"0x%x","address":"%s","topics":["%s"]}]}`+"\n", s.ID(), fromBlock, toBlock, address, topicsJoined)
+	address, err := fuzzAddress()
+	if err != nil {
+		fmt.Printf("Error generating address in genEthGetLogs, %v", err.Error())
+	}
+	topics, err := fuzzTopics()
+	if err != nil {
+		fmt.Printf("Error generating topics in genEthGetLogs, %v", err.Error())
+	}
+	_, err = fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getLogs","params":[{"fromBlock":"0x%x","toBlock":"0x%x","address":"%s","topics":%v}]}`+"\n", s.ID(), fromBlock, toBlock, address, topics)
 	return err
 }
 
