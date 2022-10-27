@@ -116,13 +116,7 @@ func genEthGetLogs(w io.Writer, s State) error {
 	fromBlock := s.CurrentBlock() - uint64(r%5000) // Pick a block within the last ~day
 	toBlock := s.CurrentBlock() - uint64(r%5)      // Within the last ~minute
 	address, topics := s.RandomContract()
-	// if err != nil {
-	// 	fmt.Printf("Error generating address in genEthGetLogs, %v", err.Error())
-	// }
-	// topics, err := fuzzTopics()
-	// if err != nil {
-	// 	fmt.Printf("Error generating topics in genEthGetLogs, %v", err.Error())
-	// }
+
 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getLogs","params":[{"fromBlock":"0x%x","toBlock":"0x%x","address":"%s","topics":%v}]}`+"\n", s.ID(), fromBlock, toBlock, address, topics)
 	return err
 }
@@ -171,6 +165,24 @@ func genBorGetSnapshot(w io.Writer, s State) error {
 	}
 }
 
+
+func genBorGetSignersAtHash(w io.Writer, s State) error {
+	r := s.RandInt64()
+
+	block := s.CurrentBlock() - uint64(r%5000) // Pick a block within the last ~day
+	blockHash := s.BlockHash()
+
+	if r % 2 == 0 {
+		_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSignersAtHash","params":["0x%x"]}`+"\n", s.ID(), block)
+		return err
+	} else {
+		_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSignersAtHash","params":["%v"]}`+"\n", s.ID(), blockHash)
+		return err
+	}
+}
+
+
+
 func genBorGetCurrentValidators(w io.Writer, s State) error {
 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getCurrentValidators"}`+"\n", s.ID())
 	return err
@@ -217,8 +229,9 @@ func installDefaults(gen *generator, methods map[string]int64) error {
 		"net_version":               genNetVersion,
 		"web3_clientVersion":        genWeb3ClientVersion,
 		"bor_getAuthor":             genBorGetAuthor,
-		"bor_getRootHash":           genBorGethRootHash,
-		"bor_getSanpshot":           genBorGetSanpshot,
+		"bor_getRootHash":           genBorGetRootHash,
+		"bor_getSanpshot":           genBorGetSnapshot,
+		"bor_getSignersAtHash":      genBorGetSignersAtHash,
 	}
 
 	for method, weight := range methods {
