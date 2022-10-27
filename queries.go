@@ -114,21 +114,44 @@ func genEthGetLogs(w io.Writer, s State) error {
 	// TODO: Favour latest/recent block on a curve
 	fromBlock := s.CurrentBlock() - uint64(r%5000) // Pick a block within the last ~day
 	toBlock := s.CurrentBlock() - uint64(r%5)      // Within the last ~minute
-	address, err := fuzzAddress()
-	if err != nil {
-		fmt.Printf("Error generating address in genEthGetLogs, %v", err.Error())
-	}
-	topics, err := fuzzTopics()
-	if err != nil {
-		fmt.Printf("Error generating topics in genEthGetLogs, %v", err.Error())
-	}
-	_, err = fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getLogs","params":[{"fromBlock":"0x%x","toBlock":"0x%x","address":"%s","topics":%v}]}`+"\n", s.ID(), fromBlock, toBlock, address, topics)
+	address, topics := s.RandomContract()
+	// if err != nil {
+	// 	fmt.Printf("Error generating address in genEthGetLogs, %v", err.Error())
+	// }
+	// topics, err := fuzzTopics()
+	// if err != nil {
+	// 	fmt.Printf("Error generating topics in genEthGetLogs, %v", err.Error())
+	// }
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getLogs","params":[{"fromBlock":"0x%x","toBlock":"0x%x","address":"%s","topics":%v}]}`+"\n", s.ID(), fromBlock, toBlock, address, topics)
 	return err
 }
 
 func genEthGetCode(w io.Writer, s State) error {
 	addr, _ := s.RandomContract()
 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getCode","params":["%s","latest"]}`+"\n", s.ID(), addr)
+	return err
+}
+
+func genBorGetAuthor(w io.Writer, s State) error {
+	r := s.RandInt64()
+	// TODO: ~half of the block numbers are further from head
+	blockNum := s.CurrentBlock() - uint64(r%5) // Within the last ~minute
+	full := "true"
+	if r%2 >= 0 {
+		full = "false"
+	}
+
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getAuthor","params":["0x%x",%s]}`+"\n", s.ID(), blockNum, full)
+	return err
+}
+
+func genBorGetRootHash(w io.Writer, s State) error {
+	r := s.RandInt64()
+
+	fromBlock := s.CurrentBlock() - uint64(r%5000) // Pick a block within the last ~day
+	toBlock := s.CurrentBlock() - uint64(r%5)      // Within the last ~minute
+
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getRootHash","params":["%v","%v"]}`+"\n", s.ID(), fromBlock, toBlock)
 	return err
 }
 
@@ -172,6 +195,8 @@ func installDefaults(gen *generator, methods map[string]int64) error {
 		"eth_syncing":               genEthSyncing,
 		"net_version":               genNetVersion,
 		"web3_clientVersion":        genWeb3ClientVersion,
+		"bor_getAuthor":             genBorGetAuthor,
+		"bor_getRootHash":           genBorGethRootHash,
 	}
 
 	for method, weight := range methods {

@@ -42,7 +42,7 @@ func fuzzAddress() (string, error) {
 
 }
 
-func fuzzTopics() (string, error) {
+func fuzzTopics() ([]string, error) {
 
 	topicZero, err := jsonUnmarshal("testdata/topic0.json")
 	if err != nil {
@@ -74,13 +74,13 @@ func fuzzTopics() (string, error) {
 		tParams[i] = types[getRandom(0, 2)]
 	}
 
-	if len(tParams) == 1 && tParams[0] == nil {
-		p, err := json.Marshal("")
-		if err != nil {
-			fmt.Printf("Error marshalling empty return value from fuzz %v", err.Error())
-			return "", err
-		}
-		return string(p), nil
+	if len(tParams) == 0 || len(tParams) == 1 && tParams[0] == nil {
+		// p, err := json.Marshal("")
+		// if err != nil {
+		// 	fmt.Printf("Error marshalling empty return value from fuzz %v", err.Error())
+		// 	return "", err
+		// }
+		return []string{}, nil
 	}
 
 	for i, item := range tParams {
@@ -104,5 +104,5 @@ func fuzzTopics() (string, error) {
 		fmt.Printf("Error marshalling non emptpy return values from fuzz %v", err.Error())
 	}
 
-	return string(p), nil
+	return []string{string(p)}, nil
 }
