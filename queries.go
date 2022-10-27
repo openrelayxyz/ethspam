@@ -46,6 +46,14 @@ func genEthGetBlockByNumber(w io.Writer, s State) error {
 	return err
 }
 
+func genEthGetBlockByHash(w io.Writer, s State) error {
+	blockHash := s.BlockHash()
+	full := "true"
+
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getBlockByHash","params":["%v",%s]}`+"\n", s.ID(), blockHash, full)
+	return err
+}
+
 func genEthEstimateGas(w io.Writer, s State) error {  
 	// We eth_call the block before the call actually happened to avoid collision reverts
 	to, from, input, block := s.RandomCall()
@@ -58,13 +66,6 @@ func genEthEstimateGas(w io.Writer, s State) error {
 	return err
 }
 
-func genEthGetBlockByHash(w io.Writer, s State) error {
-	blockHash := s.BlockHash()
-	full := "true"
-
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getBlockByHash","params":["%v",%s]}`+"\n", s.ID(), blockHash, full)
-	return err
-}
 
 
 func genEthGetTransactionCount(w io.Writer, s State) error {
@@ -155,6 +156,26 @@ func genBorGetRootHash(w io.Writer, s State) error {
 	return err
 }
 
+func genBorGetSnapshot(w io.Writer, s State) error {
+	r := s.RandInt64()
+
+	block := s.CurrentBlock() - uint64(r%5000) // Pick a block within the last ~day
+	blockHash := s.BlockHash()
+
+	if r % 2 == 0 {
+		_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSnapshot","params":["0x%x"]}`+"\n", s.ID(), block)
+		return err
+	} else {
+		_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSnapshot","params":["%v"]}`+"\n", s.ID(), blockHash)
+		return err
+	}
+}
+
+func genBorGetCurrentValidators(w io.Writer, s State) error {
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getCurrentValidators"}`+"\n", s.ID())
+	return err
+}
+
 func installDefaults(gen *generator, methods map[string]int64) error {
 	// Top queries by weight, pulled from a 5000 Infura query sample on Dec 2019.
 	//     3 "eth_accounts"
@@ -197,6 +218,7 @@ func installDefaults(gen *generator, methods map[string]int64) error {
 		"web3_clientVersion":        genWeb3ClientVersion,
 		"bor_getAuthor":             genBorGetAuthor,
 		"bor_getRootHash":           genBorGethRootHash,
+		"bor_getSanpshot":           genBorGetSanpshot,
 	}
 
 	for method, weight := range methods {
