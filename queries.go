@@ -188,6 +188,11 @@ func genBorGetCurrentValidators(w io.Writer, s State) error {
 	return err
 }
 
+func genBorGetCurrentProposer(w io.Writer, s State) error {
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getCurrentProposer"}`+"\n", s.ID())
+	return err
+}
+
 func installDefaults(gen *generator, methods map[string]int64) error {
 	// Top queries by weight, pulled from a 5000 Infura query sample on Dec 2019.
 	//     3 "eth_accounts"
@@ -232,6 +237,7 @@ func installDefaults(gen *generator, methods map[string]int64) error {
 		"bor_getRootHash":           genBorGetRootHash,
 		"bor_getSanpshot":           genBorGetSnapshot,
 		"bor_getSignersAtHash":      genBorGetSignersAtHash,
+		"bor_getCurrentPropser":     genBorGetCurrentProposer,
 	}
 
 	for method, weight := range methods {
