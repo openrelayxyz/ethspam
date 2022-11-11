@@ -33,7 +33,7 @@ func getRandom(min, max int) int {
 
 func fuzzAddress() (string, error) {
 
-	addresses, err := jsonUnmarshal("testdata/address.json")
+	addresses, err := jsonUnmarshal("polygon_testdata/address.json")
 	if err != nil {
 		fmt.Printf("Error ummarshalling %s data, %v", "address", err.Error())
 	}
@@ -44,22 +44,22 @@ func fuzzAddress() (string, error) {
 
 func fuzzTopics() ([]string, error) {
 
-	topicZero, err := jsonUnmarshal("testdata/topic0.json")
+	topicZero, err := jsonUnmarshal("polygon_testdata/topic0.json")
 	if err != nil {
 		fmt.Printf("Error ummarshalling topic %s data, %v", "zero", err.Error())
 	}
 
-	topicOne, err := jsonUnmarshal("testdata/topic1.json")
+	topicOne, err := jsonUnmarshal("polygon_testdata/topic1.json")
 	if err != nil {
 		fmt.Printf("Error ummarshalling topic %s data, %v", "one", err.Error())
 	}
 
-	topicTwo, err := jsonUnmarshal("testdata/topic2.json")
+	topicTwo, err := jsonUnmarshal("polygon_testdata/topic2.json")
 	if err != nil {
 		fmt.Printf("Error ummarshalling topic %s data, %v", "two", err.Error())
 	}
 
-	topicThree, err := jsonUnmarshal("testdata/topic3.json")
+	topicThree, err := jsonUnmarshal("polygon_testdata/topic3.json")
 	if err != nil {
 		fmt.Printf("Error ummarshalling topic %s data, %v", "three", err.Error())
 	}
