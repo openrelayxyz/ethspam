@@ -28,8 +28,11 @@ func genEthGetTransactionReceipt(w io.Writer, s State) error {
 }
 
 func genEthGetBalance(w io.Writer, s State) error {
+	r := s.RandInt64()
+	// TODO: ~half of the block numbers are further from head
+	blockNum := s.CurrentBlock() - uint64(r%5) // Within the last ~minute
 	addr := s.RandomAddress()
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getBalance","params":["%s","latest"]}`+"\n", s.ID(), addr)
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getBalance","params":["%s","blockNum"]}`+"\n", s.ID(), addr)
 	return err
 }
 
@@ -69,8 +72,11 @@ func genEthEstimateGas(w io.Writer, s State) error {
 
 
 func genEthGetTransactionCount(w io.Writer, s State) error {
+	r := s.RandInt64()
+	// TODO: ~half of the block numbers are further from head
+	blockNum := s.CurrentBlock() - uint64(r%5) // Within the last ~minute
 	addr := s.RandomAddress()
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getTransactionCount","params":["%s","pending"]}`+"\n", s.ID(), addr)
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getTransactionCount","params":["%s","%x"]}`+"\n", s.ID(), blockNum)
 	return err
 }
 
@@ -79,30 +85,31 @@ func genEthChainId(w io.Writer, s State) error {
 	return err
 }
 
-func genEthSyncing(w io.Writer, s State) error {
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_syncing"}`+"\n", s.ID())
-	return err
-}
+// Not useful for current tests
+// func genEthSyncing(w io.Writer, s State) error {
+// 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_syncing"}`+"\n", s.ID())
+// 	return err
+// } 
 
-func genNetVersion(w io.Writer, s State) error {
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"net_version"}`+"\n", s.ID())
-	return err
-}
+// func genNetVersion(w io.Writer, s State) error {
+// 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"net_version"}`+"\n", s.ID())
+// 	return err
+// }
 
-func genWeb3ClientVersion(w io.Writer, s State) error {
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"web3_clientVersion"}`+"\n", s.ID())
-	return err
-}
+// func genWeb3ClientVersion(w io.Writer, s State) error {
+// 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"web3_clientVersion"}`+"\n", s.ID())
+// 	return err
+// }
 
 func genEthGasPrice(w io.Writer, s State) error {
 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_GasPrice"}`+"\n", s.ID())
 	return err
 }
 
-func genEthBlockNumber(w io.Writer, s State) error {
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_blockNumber"}`+"\n", s.ID())
-	return err
-}
+// func genEthBlockNumber(w io.Writer, s State) error {
+// 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_blockNumber"}`+"\n", s.ID())
+// 	return err
+// }
 
 func genEthGetTransactionByHash(w io.Writer, s State) error {
 	txID := s.RandomTransaction()
@@ -122,8 +129,11 @@ func genEthGetLogs(w io.Writer, s State) error {
 }
 
 func genEthGetCode(w io.Writer, s State) error {
+	r := s.RandInt64()
+	// TODO: ~half of the block numbers are further from head
+	blockNum := s.CurrentBlock() - uint64(r%5) // Within the last ~minute
 	addr, _ := s.RandomContract()
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getCode","params":["%s","latest"]}`+"\n", s.ID(), addr)
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getCode","params":["%s","blockNum"]}`+"\n", s.ID(), addr)
 	return err
 }
 
