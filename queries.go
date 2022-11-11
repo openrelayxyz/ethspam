@@ -131,12 +131,8 @@ func genBorGetAuthor(w io.Writer, s State) error {
 	r := s.RandInt64()
 	// TODO: ~half of the block numbers are further from head
 	blockNum := s.CurrentBlock() - uint64(r%5) // Within the last ~minute
-	full := "true"
-	if r%2 >= 0 {
-		full = "false"
-	}
 
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getAuthor","params":["0x%x",%s]}`+"\n", s.ID(), blockNum, full)
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getAuthor","params":["0x%x"]}`+"\n", s.ID(), blockNum)
 	return err
 }
 
@@ -181,10 +177,13 @@ func genBorGetSignersAtHash(w io.Writer, s State) error {
 	}
 }
 
-
-
 func genBorGetCurrentValidators(w io.Writer, s State) error {
 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getCurrentValidators"}`+"\n", s.ID())
+	return err
+}
+
+func genBorGetCurrentProposer(w io.Writer, s State) error {
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getCurrentProposer"}`+"\n", s.ID())
 	return err
 }
 
@@ -230,8 +229,11 @@ func installDefaults(gen *generator, methods map[string]int64) error {
 		"web3_clientVersion":        genWeb3ClientVersion,
 		"bor_getAuthor":             genBorGetAuthor,
 		"bor_getRootHash":           genBorGetRootHash,
-		"bor_getSanpshot":           genBorGetSnapshot,
+		"bor_getSnapshot":           genBorGetSnapshot,
 		"bor_getSignersAtHash":      genBorGetSignersAtHash,
+		"bor_getCurrentValidators":  genBorGetCurrentValidators,
+		"bor_getCurrentProposer":    genBorGetCurrentProposer,
+
 	}
 
 	for method, weight := range methods {
