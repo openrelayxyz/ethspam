@@ -32,7 +32,7 @@ func genEthGetBalance(w io.Writer, s State) error {
 	// TODO: ~half of the block numbers are further from head
 	blockNum := s.CurrentBlock() - uint64(r%5) // Within the last ~minute
 	addr := s.RandomAddress()
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getBalance","params":["%s","blockNum"]}`+"\n", s.ID(), addr)
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getBalance","params":["%s","%#x"]}`+"\n", s.ID(), addr, blockNum)
 	return err
 }
 
@@ -76,7 +76,7 @@ func genEthGetTransactionCount(w io.Writer, s State) error {
 	// TODO: ~half of the block numbers are further from head
 	blockNum := s.CurrentBlock() - uint64(r%5) // Within the last ~minute
 	addr := s.RandomAddress()
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getTransactionCount","params":["%s","%x"]}`+"\n", s.ID(), blockNum)
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getTransactionCount","params":["%s","%#x"]}`+"\n", s.ID(), addr, blockNum)
 	return err
 }
 
@@ -133,7 +133,7 @@ func genEthGetCode(w io.Writer, s State) error {
 	// TODO: ~half of the block numbers are further from head
 	blockNum := s.CurrentBlock() - uint64(r%5) // Within the last ~minute
 	addr, _ := s.RandomContract()
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getCode","params":["%s","blockNum"]}`+"\n", s.ID(), addr)
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getCode","params":["%s","%#x"]}`+"\n", s.ID(), addr, blockNum)
 	return err
 }
 
@@ -160,15 +160,9 @@ func genBorGetSnapshot(w io.Writer, s State) error {
 	r := s.RandInt64()
 
 	block := s.CurrentBlock() - uint64(r%5000) // Pick a block within the last ~day
-	blockHash := s.BlockHash()
 
-	if r % 2 == 0 {
-		_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSnapshot","params":["0x%x"]}`+"\n", s.ID(), block)
-		return err
-	} else {
-		_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSnapshot","params":["%v"]}`+"\n", s.ID(), blockHash)
-		return err
-	}
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSnapshot","params":["0x%x"]}`+"\n", s.ID(), block)
+	return err
 }
 
 
@@ -176,15 +170,9 @@ func genBorGetSignersAtHash(w io.Writer, s State) error {
 	r := s.RandInt64()
 
 	block := s.CurrentBlock() - uint64(r%5000) // Pick a block within the last ~day
-	blockHash := s.BlockHash()
 
-	if r % 2 == 0 {
-		_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSignersAtHash","params":["0x%x"]}`+"\n", s.ID(), block)
-		return err
-	} else {
-		_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSignersAtHash","params":["%v"]}`+"\n", s.ID(), blockHash)
-		return err
-	}
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSignersAtHash","params":["0x%x"]}`+"\n", s.ID(), block)
+	return err
 }
 
 func genBorGetCurrentValidators(w io.Writer, s State) error {
@@ -226,7 +214,7 @@ func installDefaults(gen *generator, methods map[string]int64) error {
 		"eth_getBalance":            genEthGetBalance,
 		"eth_getBlockByNumber":      genEthGetBlockByNumber,
 		"eth_getTransactionCount":   genEthGetTransactionCount,
-		"eth_blockNumber":           genEthBlockNumber,
+		// "eth_blockNumber":           genEthBlockNumber,
 		"eth_getTransactionByHash":  genEthGetTransactionByHash,
 		"eth_estimateGas":           genEthEstimateGas,
 		"eth_getLogs":               genEthGetLogs,
@@ -234,9 +222,9 @@ func installDefaults(gen *generator, methods map[string]int64) error {
 		"eth_chainId":               genEthChainId,
 		"eth_getBlockByHash":        genEthGetBlockByHash,
 		"eth_gasPrice":              genEthGasPrice,
-		"eth_syncing":               genEthSyncing,
-		"net_version":               genNetVersion,
-		"web3_clientVersion":        genWeb3ClientVersion,
+		// "eth_syncing":               genEthSyncing,
+		// "net_version":               genNetVersion,
+		// "web3_clientVersion":        genWeb3ClientVersion,
 		"bor_getAuthor":             genBorGetAuthor,
 		"bor_getRootHash":           genBorGetRootHash,
 		"bor_getSnapshot":           genBorGetSnapshot,
