@@ -167,11 +167,9 @@ func genBorGetSnapshot(w io.Writer, s State) error {
 
 
 func genBorGetSignersAtHash(w io.Writer, s State) error {
-	r := s.RandInt64()
+	blockHash := s.BlockHash()
 
-	block := s.CurrentBlock() - uint64(r%5000) // Pick a block within the last ~day
-
-	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSignersAtHash","params":["0x%x"]}`+"\n", s.ID(), block)
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"bor_getSignersAtHash","params":["%v"]}`+"\n", s.ID(), blockHash)
 	return err
 }
 
