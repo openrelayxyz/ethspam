@@ -120,7 +120,7 @@ func genEthGetTransactionByHash(w io.Writer, s State) error {
 func genEthGetLogs(w io.Writer, s State) error {
 	r := s.RandInt64()
 	// TODO: Favour latest/recent block on a curve
-	fromBlock := s.CurrentBlock() - uint64(r%5000) // Pick a block within the last ~day
+	fromBlock := s.CurrentBlock() - uint64(r%500) // Pick a block within the last ~day
 	toBlock := s.CurrentBlock() - uint64(r%5)      // Within the last ~minute
 	address, topics := s.RandomContract()
 
