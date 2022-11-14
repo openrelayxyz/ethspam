@@ -23,7 +23,7 @@ type Options struct {
 	// stored until getSnapshot is in order: default:"bor_getSnapshot:100" default:"bor_getCurrentValidators:100" default:"bor_getCurrentProposer:100" default:"bor_getSignersAtHash:100"
 	// stored until memPool is sorted out: default:"eth_getTransactionCount:100"
 	// Methods      map[string]int64 `short:"m" long:"method" description:"A map from json rpc methods to their weight" default:"bor_getSnapshot:100" default:"bor_getCurrentValidators:100" default:"bor_getCurrentProposer:100" default:"bor_getSignersAtHash:100" default:"bor_getRootHash:100" default:"bor_getAuthor:100" default:"eth_getBlockByHash:100" default:"eth_estimateGas:100" default:"eth_getCode:100" default:"eth_getLogs:100" default:"eth_getTransactionByHash:100" default:"eth_getBlockByNumber:100" default:"eth_getBalance:100" default:"eth_getTransactionReceipt:100" default:"eth_call:100"`
-	Methods      map[string]int64 `short:"m" long:"method" description:"A map from json rpc methods to their weight" default:"bor_getSnapshot:500"
+	Methods      map[string]int64 `short:"m" long:"method" description:"A map from json rpc methods to their weight" default:"bor_getSnapshot:500"`
 	Web3Endpoint string           `long:"rpc" description:"Ethereum JSONRPC provider, such as Infura or Cloudflare" default:"https://mainnet.infura.io/v3/af500e495f2d4e7cbcae36d0bfa66bcb"` // Versus API key on Infura
 	RateLimit    float64          `short:"r" long:"ratelimit" description:"rate limit for generating jsonrpc calls"`
 
