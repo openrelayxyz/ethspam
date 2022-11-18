@@ -9,7 +9,7 @@ import (
 
 // TODO: Replace with proper JSON serialization? Originally was written to be quick&dirty for maximum perf.
 
-func genEthCall(w io.Writer, s State) error {
+func genEthCall(w io.Writer, s State) error {  
 	// We eth_call the block before the call actually happened to avoid collision reverts
 	to, from, input, block := s.RandomCall()
 	var err error
@@ -57,7 +57,7 @@ func genEthGetBlockByHash(w io.Writer, s State) error {
 	return err
 }
 
-func genEthEstimateGas(w io.Writer, s State) error {
+func genEthEstimateGas(w io.Writer, s State) error {  
 	// We eth_call the block before the call actually happened to avoid collision reverts
 	to, from, input, block := s.RandomCall()
 	var err error
@@ -68,8 +68,6 @@ func genEthEstimateGas(w io.Writer, s State) error {
 	}
 	return err
 }
-
-
 
 func genEthGetTransactionCount(w io.Writer, s State) error {
 	r := s.RandInt64()
@@ -89,7 +87,7 @@ func genEthChainId(w io.Writer, s State) error {
 // func genEthSyncing(w io.Writer, s State) error {
 // 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_syncing"}`+"\n", s.ID())
 // 	return err
-// }
+// } 
 
 // func genNetVersion(w io.Writer, s State) error {
 // 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"net_version"}`+"\n", s.ID())
@@ -119,10 +117,9 @@ func genEthGetTransactionByHash(w io.Writer, s State) error {
 
 func genEthGetLogs(w io.Writer, s State) error {
 	r := s.RandInt64()
-	n := s.RandInt64()
 	// TODO: Favour latest/recent block on a curve
 	fromBlock := s.CurrentBlock() - uint64(r%5000) // Pick a block within the last ~day
-	toBlock := fromBlock + uint64(n%10)      // Within the last ~minute
+	toBlock := s.CurrentBlock() - uint64(r%5)      // Within the last ~minute
 	address, topics := s.RandomContract()
 
 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getLogs","params":[{"fromBlock":"0x%x","toBlock":"0x%x","address":"%s","topics":%v}]}`+"\n", s.ID(), fromBlock, toBlock, address, topics)
@@ -135,6 +132,20 @@ func genEthGetCode(w io.Writer, s State) error {
 	blockNum := s.CurrentBlock() - uint64(r%5) // Within the last ~minute
 	addr, _ := s.RandomContract()
 	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getCode","params":["%s","%#x"]}`+"\n", s.ID(), addr, blockNum)
+	return err
+}
+
+func genEthGetBorBlockReceipt(w io.Writer, s State) error {
+	blockHash := s.BlockHash()
+
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getBorBlockReceipt","params":["%v"]}`+"\n", s.ID(), blockHash)
+	return err
+}
+
+func genEthGetTransactionReceiptsByBlock(w io.Writer, s State) error {
+	r := s.RandInt64()
+	blockNum := s.CurrentBlock() - uint64(r%5000) 
+	_, err := fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"method":"eth_getTransactionReceiptsByBlock","params":["%#x"]}`+"\n", s.ID(), blockNum)
 	return err
 }
 
@@ -214,6 +225,7 @@ func installDefaults(gen *generator, methods map[string]int64) error {
 		"eth_getBlockByNumber":      genEthGetBlockByNumber,
 		"eth_getTransactionCount":   genEthGetTransactionCount,
 		// "eth_blockNumber":           genEthBlockNumber,
+		"eth_GetBorBlockReceipt":    genEthGetBorBlockReceipt,
 		"eth_getTransactionByHash":  genEthGetTransactionByHash,
 		"eth_estimateGas":           genEthEstimateGas,
 		"eth_getLogs":               genEthGetLogs,
@@ -224,6 +236,8 @@ func installDefaults(gen *generator, methods map[string]int64) error {
 		// "eth_syncing":               genEthSyncing,
 		// "net_version":               genNetVersion,
 		// "web3_clientVersion":        genWeb3ClientVersion,
+		"eth_genEthGetBorBlockReceipt": genEthGetBorBlockReceipt,
+		"eth_getTransactionReceiptsByBlock": genEthGetTransactionReceiptsByBlock, 
 		"bor_getAuthor":             genBorGetAuthor,
 		"bor_getRootHash":           genBorGetRootHash,
 		"bor_getSnapshot":           genBorGetSnapshot,
